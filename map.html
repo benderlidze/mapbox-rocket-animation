@@ -53,9 +53,11 @@
             //style: 'mapbox://styles/mapbox/satellite-v9',
             zoom: 13,
             center: [24.3981, 49.9819],
-            pitch: 60,
             antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
         });
+
+        const FROM = { lng: 24.028618830264293, lat: 49.841364715023616 }
+        const TO = { lng: 25.33320053359435, lat: 50.75976955914726 }
 
         // parameters to ensure the model is georeferenced correctly on the map
         const modelOrigin = [24.3981, 49.9819];
@@ -92,10 +94,10 @@
                 this.camera = new THREE.Camera();
                 this.scene = new THREE.Scene();
 
-                const geometry = new THREE.SphereGeometry(10, 20, 0);
-                const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-                const sphere = new THREE.Mesh(geometry, material);
-                this.scene.add(sphere);
+                // const geometry = new THREE.SphereGeometry(10, 20, 0);
+                // const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+                // const sphere = new THREE.Mesh(geometry, material);
+                // this.scene.add(sphere);
 
                 // burnerLight = new THREE.DirectionalLight(Colors.white, 2.75);
                 // burnerLight.position.set(10, 20, 0);
@@ -144,6 +146,71 @@
                 this.scene.add(ambientLight);
 
 
+                //=============================LINE================================
+                // const pointsPath = new THREE.CurvePath();
+                // const bezierLine = new THREE.CubicBezierCurve3(
+                //     new THREE.Vector3(-1, 1, 1),
+                //     new THREE.Vector3(-0.5, 1.5, 0),
+                //     new THREE.Vector3(2.0, 1.5, 0),
+                //     new THREE.Vector3(-1, 0, 1)
+                // );
+                // pointsPath.add(bezierLine);
+
+                // const path = () => {
+                //     const material = new THREE.LineBasicMaterial({ color: 0x9132a8 });
+                //     const points = pointsPath;
+                //     const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                //     return new THREE.Line(geometry, material);
+                // }
+                // this.scene.add(ambientLight);
+                const from = map.project(FROM)
+                const to = map.project(TO)
+
+
+                {
+                    // smooth my curve over this many points
+                    // spline = new THREE.SplineCurve3([
+                    //     new THREE.Vector3(0, 0, 0),
+                    //     new THREE.Vector3(0, 200, 0),
+                    //     new THREE.Vector3(150, 150, 0),
+                    //     new THREE.Vector3(150, 50, 0),
+                    //     new THREE.Vector3(250, 100, 0),
+                    //     new THREE.Vector3(250, 300, 0)
+                    // ]);
+
+
+                    console.log('from', from);
+                    console.log('to', to);
+
+                    const curve = new THREE.CatmullRomCurve3([
+                        new THREE.Vector3(from.x, 0, from.y),
+                        new THREE.Vector3(100, 100, 100),
+                        new THREE.Vector3(to.x, 0, to.y),
+                    ]);
+
+                    const points = curve.getPoints(1000);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+                    // Create the final object to add to the scene
+                    const curveObject = new THREE.Line(geometry, material);
+                    this.scene.add(curveObject)
+                }
+
+                {
+
+                    const material = new THREE.LineBasicMaterial({ color: 0x9132a8 });
+                    const points = [];
+                    points.push(new THREE.Vector3(-3763, 0, 3163));
+                    points.push(new THREE.Vector3(11000, 0, -13566));
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const line = new THREE.Line(geometry, material);
+
+                    this.scene.add(line);
+                }
+                //=============================LINE================================
+
                 const createRocket = () => {
                     const rocket = new Rocket();
                     rocket.mesh.scale.set(0.5, 0.5, 0.5);
@@ -169,7 +236,6 @@
                 const globalScene = this.scene
 
                 function render(time) {
-
                     if (rocketMesh.position.y < 10000) {
                         rocketMesh.position.y += 6;
                     }
@@ -177,9 +243,7 @@
                     rocketMesh.rotation.z = Math.random() * Math.sin(1) * 0.04;
                     rocketMesh.position.z = Math.random() * Math.PI * 0.5;
 
-
                     p = new Particle(rocket, globalScene);
-
 
                     requestAnimationFrame(render);
                 }
@@ -226,7 +290,24 @@
         };
 
         map.on('style.load', () => {
+
+            const from = map.project(FROM)
+            const to = map.project({ lng: 25.33320053359435, lat: 50.75976955914726 })
+            console.log('from', from);
+            console.log('to', to);
+
+            new mapboxgl.Marker()
+                .setLngLat(FROM)
+                .addTo(map);
+            new mapboxgl.Marker()
+                .setLngLat(TO)
+                .addTo(map);
+
+                
             map.addLayer(customLayer);
+        });
+        map.on('click', (e) => {
+            console.log('e.', e);
         });
 
 
