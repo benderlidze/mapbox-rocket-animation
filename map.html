@@ -46,11 +46,12 @@
         };
         let particleArray = [],
             slowMoFactor = 1;
-
+        let globalScene
         const map = new mapboxgl.Map({
             container: 'map',
             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: 'mapbox://styles/mapbox/light-v11',
+            //style: 'mapbox://styles/mapbox/satellite-v9',
             zoom: 15,
             center: [24.3981, 49.9819],
             pitch: 60,
@@ -170,7 +171,7 @@
                 });
                 this.renderer.autoClear = false;
 
-
+                globalScene = this.scene
 
                 function render(time) {
 
@@ -182,6 +183,7 @@
                     rocketMesh.position.z = Math.random() * Math.PI * 0.5;
 
                     createSmoke(rocket)
+
                     requestAnimationFrame(render);
                 }
                 requestAnimationFrame(render);
@@ -382,7 +384,6 @@
             }
         }
 
-
         const getParticle = () => {
             let p;
             if (particleArray.length > 0) {
@@ -397,7 +398,7 @@
             let p = getParticle();
             dropParticle(p, rocket);
         };
-        
+
         class Particle {
             constructor() {
                 this.isFlying = false;
@@ -430,8 +431,11 @@
             p.color = 0xe3e3e3;
             p.mesh.material.color.set(p.color);
             p.material.needUpdate = true;
-            //scene.add(p.mesh);
             particleArray.push(p);
+
+
+
+            globalScene && globalScene.add(p.mesh);
         }
 
         let cloudTargetPosX,

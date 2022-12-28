@@ -309,19 +309,6 @@ class Rocket {
   }
 }
 
-class Base {
-  constructor() {
-    this.mesh = new THREE.Object3D();
-    let geo = new THREE.CylinderGeometry(70, 80, 50, 8);
-    let mat = new THREE.MeshPhongMaterial({
-      color: Colors.darkGrey
-    });
-    let m = new THREE.Mesh(geo, mat);
-    m.castShadow = true;
-    m.receiveShadow = true;
-    this.mesh.add(m);
-  }
-}
 
 let rocket;
 
@@ -332,10 +319,6 @@ const createRocket = () => {
   rocket.mesh.rotation.y = 1.5;
   scene.add(rocket.mesh);
 
-  // let base = new Base();
-  // base.mesh.position.y = -190;
-  // base.mesh.scale.set(3.3, 0.8, 3.3);
-  // scene.add(base.mesh);
 };
 
 let particleArray = [],
@@ -359,10 +342,7 @@ const loop = () => {
     rocket.mesh.position.y = -300;
   }
 
-  setTimeout(() => {
-    createSmoke(rocket);
-  }, 1000);
-  createFlyingParticles();
+  createSmoke(rocket);
 
   // controls.update();
   requestAnimationFrame(loop);
@@ -373,6 +353,7 @@ const getParticle = () => {
   if (particleArray.length > 0) {
     p = particleArray.pop();
   } else {
+    console.log('!!!');
     p = new Particle();
   }
   return p;
@@ -383,10 +364,6 @@ const createSmoke = (rocket) => {
   dropParticle(p, rocket);
 };
 
-const createFlyingParticles = () => {
-  let p = getParticle();
-  flyParticle(p);
-};
 
 class Particle {
   constructor() {
