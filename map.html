@@ -292,7 +292,7 @@
         map.on('style.load', () => {
 
             const from = map.project(FROM)
-            const to = map.project({ lng: 25.33320053359435, lat: 50.75976955914726 })
+            const to = map.project(TO)
             console.log('from', from);
             console.log('to', to);
 
@@ -303,7 +303,7 @@
                 .setLngLat(TO)
                 .addTo(map);
 
-                
+
             map.addLayer(customLayer);
         });
         map.on('click', (e) => {
@@ -327,7 +327,7 @@
                 geoFinShape.lineTo(x, y);
 
                 let finExtrudeSettings = {
-                    amount: 8,
+                    depth: 8,
                     bevelEnabled: true,
                     bevelSegments: 2,
                     steps: 2,
@@ -491,7 +491,6 @@
 
                 this.material = new THREE.MeshLambertMaterial({
                     color: 0xe3e3e3,
-                    shading: THREE.FlatShading,
                     transparent: true
                 });
 
